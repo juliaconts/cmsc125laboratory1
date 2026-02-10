@@ -12,11 +12,8 @@ int main() {
 
         if (!fgets(line, sizeof(line), stdin)) break;
 
-        // Reset struct memory
-        memset(&cmd, 0, sizeof(Command));
-
-        parse_command(line, &cmd);
-        execute_command(&cmd);
+        cmd = parse_command(line);
+        execute_command(cmd);
     }
     return 0;
 }
