@@ -3,16 +3,20 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <fcntl.h>
+#include "parser.c"
 #include "mysh.h"
 
-void execute_command(Command cmd) {
+void execute_command(Command cmd)
+{
     if (cmd.command == NULL)
         return;
 
     // Built-ins
     if (strcmp(cmd.command, "exit") == 0)
         exit(0);
-    if (strcmp(cmd.command, "cd") == 0) {
+    if (strcmp(cmd.command, "cd") == 0)
+    {
         if (cmd.args[1])
             chdir(cmd.args[1]);
         return;
@@ -24,13 +28,24 @@ void execute_command(Command cmd) {
     // External Command
     pid_t pid = fork();
 
-    if (pid == 0) {
+    if (pid == 0)
+    {
         // CHILD PROCESS
         // TODO:WEEK3 - redirection for open, dup2 must happen here
         /* insert code here */
 
-        // TODO:WEEK2 - file redirection handling should be done here
-        /* insert code here */
+        // Input Redirection
+        if (cmd.input_file)
+        {
+            int fd = open(cmd.input_file, O_RDONLY);
+            if (fd < 0)
+            {
+                perror("open input file");
+                exit(1);
+            }
+            dup2(fd, STDIN_FILENO);
+            close(fd);
+        }
         execvp(cmd.command, cmd.args);
         perror("mysh");
         exit(1);
@@ -42,9 +57,9 @@ void execute_command(Command cmd) {
         // TODO:WEEK3 - checks if backgroound job (&)
         /* insert code here */
 
-        // TODO:WEEK2 - no file redirection needed here (parent waits for the process)
-        /* insert code here*/
-        if (!cmd.background) {
+        // WEEK2 - no file redirection needed here (parent waits for the process)
+        if (!cmd.background)
+        {
             waitpid(pid, NULL, 0);
         }
         else
