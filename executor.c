@@ -46,6 +46,23 @@ void execute_command(Command cmd)
             dup2(fd, STDIN_FILENO);
             close(fd);
         }
+
+        // Output Redirection
+        if (cmd.output_file)
+        {
+            int flags = O_WRONLY | O_CREAT;
+            flags |= cmd.append ? O_APPEND : O_TRUNC;
+            int fd = open(cmd.output_file, flags, 0644);
+            if (fd < 0)
+            {
+                perror("open output file");
+                exit(1);
+            }
+            dup2(fd, STDOUT_FILENO);
+            close(fd);
+        }
+
+        // Execute command
         execvp(cmd.command, cmd.args);
         perror("mysh");
         exit(1);
