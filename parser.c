@@ -29,6 +29,30 @@ Command parse_command(char input[]) {
         if (strcmp(token, "&") == 0) {
             cmd.background = true;
         }
+
+        else if (strcmp(token, ">") == 0) {
+            token = strtok(NULL, " \t\n");  //Get filename
+            if (token) {
+                cmd.output_file = token;
+                cmd.append = false
+            }
+        }
+
+        else if (strcmp(token, ">>") == 0){
+            token = strtok(NULL, " \t\n"); // Get filename
+            if (token) {
+                cmd.output_file = token;
+                cmd.append = true;
+            }
+        }
+
+        else if (strcmp(token, "<") == 0) {
+                    token = strtok(NULL, " \t\n"); // Get filename
+                    if (token) {
+                        cmd.input_file = token;
+                    }
+        }
+
         else {
             // TODO:Week3 - memory safety
             /* insert code here*/
