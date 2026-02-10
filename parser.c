@@ -34,7 +34,7 @@ Command parse_command(char input[]) {
             token = strtok(NULL, " \t\n");  //Get filename
             if (token) {
                 cmd.output_file = token;
-                cmd.append = false
+                cmd.append = false;
             }
         }
 
