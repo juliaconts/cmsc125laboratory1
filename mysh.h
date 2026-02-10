@@ -4,15 +4,16 @@
 #include <stdbool.h>
 
 typedef struct {
-    char *command;
-    char *args[256];
-    char *input_file;
+    char *command;          // program name
+    char *args[256];        // argument list needed for execcvp
+    char *input_file;     
     char *output_file;
     bool append;
-    bool background;
+    bool background;        // flag set to true if user typed &
 } Command;
 
-void parse_command(char *input, Command *cmd);
-void execute_command(Command *cmd);
+// Function prototypes
+Command parse_command(char input[]);
+void execute_command(Command cmd);
 
 #endif
