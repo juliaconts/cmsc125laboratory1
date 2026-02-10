@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include "mysh.h"
 
-void parse_command(char *input, Command *cmd)
-{
+Command parse_command(char input[]) {
 
-    // TODO:Week3 - an edge case handling for checking if the input is null or empty string will go here
-    /* insert code here*/
+    // Local variable creation
+    Command cmd;  
+
+    memset(&cmd, 0, sizeof(Command));
 
     int i = 0;
 
@@ -25,24 +26,21 @@ void parse_command(char *input, Command *cmd)
         /* insert code here*/
 
         // Week1 - Detect background flag
-        if (strcmp(token, "&") == 0)
-        {
-            cmd->background = true;
+        if (strcmp(token, "&") == 0) {
+            cmd.background = true;
         }
-        // TODO:Week2 - Redirection parsing will go here
-        else
-        {
-
+        else {
             // TODO:Week3 - memory safety
             /* insert code here*/
 
-            if (i == 0)
-                cmd->command = token;
-            cmd->args[i++] = token;
+            if (i == 0) {
+                cmd.command = token;
+            }
+            cmd.args[i++] = token;
         }
-
-        // TODO:Week3 - edge case handling to ensure strtok not return unwanted null
         token = strtok(NULL, " \t\n");
     }
-    cmd->args[i] = NULL; // EXECVP needs a NULL terminator
+    cmd.args[i] = NULL; // EXECVP needs a NULL terminator
+
+    return cmd
 }
