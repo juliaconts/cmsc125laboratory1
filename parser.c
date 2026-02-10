@@ -42,5 +42,5 @@ Command parse_command(char input[]) {
     }
     cmd.args[i] = NULL; // EXECVP needs a NULL terminator
 
-    return cmd
+    return cmd;
 }
