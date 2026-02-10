@@ -4,7 +4,6 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <fcntl.h>
-#include "parser.c"
 #include "mysh.h"
 
 void execute_command(Command cmd)
