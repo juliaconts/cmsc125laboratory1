@@ -1,10 +1,20 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
 
-all: mysh
+SRCS = mysh.c parser.c executor.c
+OBJS = $(SRCS:.c=.o)
+TARGET = mysh
 
-mysh: mysh.o parser.o executor.o
-	$(CC) $(CFLAGS) -o mysh mysh.o parser.o executor.o
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+
+%.o: %.c mysh.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# mysh: mysh.o parser.o executor.o
+# 	$(CC) $(CFLAGS) -o mysh mysh.o parser.o executor.o
 
 clean:
-	rm -f *.o mysh
+	rm -f $(OBJS) $(TARGET)
