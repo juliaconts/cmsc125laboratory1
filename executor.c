@@ -21,9 +21,6 @@ void execute_command(Command cmd)
         return;
     }
 
-    // TODO:WEEK3 - setting the & logic
-    /* insert code here*/
-
     // External Command
     pid_t pid = fork();
 
@@ -31,7 +28,10 @@ void execute_command(Command cmd)
     {
         // CHILD PROCESS
         // TODO:WEEK3 - redirection for open, dup2 must happen here
-        /* insert code here */
+        if (cmd.background)
+        {
+            setsid();
+        }
 
         // Input Redirection
         if (cmd.input_file)
