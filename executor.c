@@ -70,9 +70,6 @@ void execute_command(Command cmd)
     {
         // PARENT PROCESS
 
-        // TODO:WEEK3 - checks if backgroound job (&)
-        /* insert code here */
-
         // WEEK2 - no file redirection needed here (parent waits for the process)
         if (!cmd.background)
         {
