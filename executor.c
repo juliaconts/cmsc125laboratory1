@@ -96,6 +96,11 @@ void execute_command(Command cmd)
         }
 
         // TODO:WEEK3 - zombie reaping code goes here
+        int status;
+        while (waitpid(-1, &status, WNOHANG) > 0)
+        {
+            // cleaned up one zombie
+        }
     }
     else
     {
