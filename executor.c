@@ -7,6 +7,7 @@
 #include <signal.h>
 #include "mysh.h"
 
+// SIGCHILD handler for background jobs
 void sigchld_handler(int sig)
 {
     (void)sig;
@@ -14,7 +15,7 @@ void sigchld_handler(int sig)
     int status;
     pid_t pid;
 
-    // TODO:WEEK3 - zombie reaping code goes here
+    // Zombie reaping code goes here
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
     {
         if (WIFEXITED(status))
@@ -37,8 +38,8 @@ void execute_command(Command cmd)
     // Initialize signals ONLY ONCE
     if (!initialized)
     {
-        signal(SIGCHLD, sigchld_handler);
-        signal(SIGINT, SIG_IGN);
+        signal(SIGCHLD, sigchld_handler); // reap background jobs
+        signal(SIGINT, SIG_IGN);          // shell ignores Ctrl+C
         initialized = 1;
     }
 
@@ -68,7 +69,7 @@ void execute_command(Command cmd)
         {
             signal(SIGINT, SIG_DFL);
         }
-        // TODO:WEEK3 - redirection for open, dup2 must happen here
+        // Redirection for open, dup2 must happen here
         if (cmd.background)
         {
             setsid();
@@ -134,7 +135,7 @@ void execute_command(Command cmd)
         }
         else
         {
-            // TODO:WEEK3 - put foreground job where parent does not wait
+            // WEEK3 - put foreground job where parent does not wait
             static int job_id = 1;
             char cmd_str[1024] = "";
 
