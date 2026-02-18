@@ -4,16 +4,51 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <fcntl.h>
+#include <signal.h>
 #include "mysh.h"
+
+void sigchld_handler(int sig)
+{
+    (void)sig;
+
+    int status;
+    pid_t pid;
+
+    // TODO:WEEK3 - zombie reaping code goes here
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+    {
+        if (WIFEXITED(status))
+        {
+            printf("\n[Job PID %d] Completed\n", pid);
+            fflush(stdout);
+        }
+        else if (WIFSIGNALED(status))
+        {
+            printf("\n[Job PID %d] Terminated\n", pid);
+            fflush(stdout);
+        }
+    }
+}
 
 void execute_command(Command cmd)
 {
+    static int initialized = 0;
+
+    // Initialize signals ONLY ONCE
+    if (!initialized)
+    {
+        signal(SIGCHLD, sigchld_handler);
+        signal(SIGINT, SIG_IGN);
+        initialized = 1;
+    }
+
     if (cmd.command == NULL)
         return;
 
     // Built-ins
     if (strcmp(cmd.command, "exit") == 0)
         exit(0);
+
     if (strcmp(cmd.command, "cd") == 0)
     {
         if (cmd.args[1])
@@ -100,13 +135,6 @@ void execute_command(Command cmd)
                 }
             }
             printf("[%d] Started background job: %s (PID: %d)\n", job_id++, cmd_str, pid);
-        }
-
-        // TODO:WEEK3 - zombie reaping code goes here
-        int status;
-        while (waitpid(-1, &status, WNOHANG) > 0)
-        {
-            // cleaned up one zombie
         }
     }
     else
