@@ -16,4 +16,7 @@ typedef struct {
 Command parse_command(char input[]);
 void execute_command(Command cmd);
 
+// New: Function to clean up memory after execution
+void free_command(Command *cmd);
+
 #endif
