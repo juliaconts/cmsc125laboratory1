@@ -89,7 +89,17 @@ void execute_command(Command cmd)
         {
             // TODO:WEEK3 - put foreground job where parent does not wait
             static int job_id = 1;
-            printf("[%d] Started PID: %d\n", job_id++, pid);
+            char cmd_str[1024] = "";
+
+            for (int i = 0; cmd.args[i] != NULL; i++)
+            {
+                strcat(cmd_str, cmd.args[i]);
+                if (cmd.args[i + 1] != NULL)
+                {
+                    strcat(cmd_str, " ");
+                }
+            }
+            printf("[%d] Started background job: %s (PID: %d)\n", job_id++, cmd_str, pid);
         }
 
         // TODO:WEEK3 - zombie reaping code goes here
