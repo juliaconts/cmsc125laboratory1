@@ -62,6 +62,12 @@ void execute_command(Command cmd)
     if (pid == 0)
     {
         // CHILD PROCESS
+
+        // Foreground should respond to Ctrl+C
+        if (!cmd.background)
+        {
+            signal(SIGINT, SIG_DFL);
+        }
         // TODO:WEEK3 - redirection for open, dup2 must happen here
         if (cmd.background)
         {
@@ -118,6 +124,12 @@ void execute_command(Command cmd)
                 {
                     printf("Command exited with code %d\n", exit_code);
                 }
+            }
+            else if (WIFSIGNALED(status))
+            {
+                int sig = WTERMSIG(status);
+                printf("\n[Process %d killed by signal %d]\n", pid, sig);
+                fflush(stdout);
             }
         }
         else
