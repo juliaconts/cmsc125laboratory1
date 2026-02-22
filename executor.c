@@ -160,25 +160,17 @@ void execute_command(Command cmd)
                 fflush(stdout);
             }
         }
-        else
-        {
-            // WEEK3 - put foreground job where parent does not wait
-            static int job_id = 1;
-            char cmd_str[1024] = "";
-
-            for (int i = 0; cmd.args[i] != NULL; i++)
-            {
-                strcat(cmd_str, cmd.args[i]);
+        else {
+            char cmd_str[256] = "";
+            for (int i = 0; cmd.args[i] != NULL; i++) {
+                strncat(cmd_str, cmd.args[i], sizeof(cmd_str) - strlen(cmd_str) - 1);
                 if (cmd.args[i + 1] != NULL)
-                {
-                    strcat(cmd_str, " ");
-                }
+                    strncat(cmd_str, " ", sizeof(cmd_str) - strlen(cmd_str) - 1);
             }
-            printf("[%d] Started background job: %s (PID: %d)\n", job_id++, cmd_str, pid);
+            add_job(pid, cmd_str);  // <-- saves job BEFORE free_command is called
+            printf("[%d] Started background job: %s (PID: %d)\n", job_table[job_count-1].job_id, cmd_str, pid);
         }
-    }
-    else
-    {
+    else {
         // fork failure handling
         perror("fork failed");
     }
