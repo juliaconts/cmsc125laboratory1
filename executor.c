@@ -42,19 +42,19 @@ void sigchld_handler(int sig)
     int status;
     pid_t pid;
 
-    // Zombie reaping code goes here
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
     {
+        int jid = remove_job(pid);
+        if (jid < 0) continue; // wasn't a tracked background job
+
+        char buf[128];
+        int n;
         if (WIFEXITED(status))
-        {
-            printf("\n[Job PID %d] Completed\n", pid);
-            fflush(stdout);
-        }
-        else if (WIFSIGNALED(status))
-        {
-            printf("\n[Job PID %d] Terminated\n", pid);
-            fflush(stdout);
-        }
+            n = snprintf(buf, sizeof(buf), "\n[%d] Done (PID %d)\n", jid, pid);
+        else
+            n = snprintf(buf, sizeof(buf), "\n[%d] Terminated (PID %d)\n", jid, pid);
+        
+        write(STDOUT_FILENO, buf, n);
     }
 }
 
