@@ -170,6 +170,7 @@ void execute_command(Command cmd)
             add_job(pid, cmd_str);  // <-- saves job BEFORE free_command is called
             printf("[%d] Started background job: %s (PID: %d)\n", job_table[job_count-1].job_id, cmd_str, pid);
         }
+    }
     else {
         // fork failure handling
         perror("fork failed");
