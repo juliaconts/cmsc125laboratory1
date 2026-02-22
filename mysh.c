@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "mysh.h"
 
 int main() {
@@ -25,8 +26,13 @@ int main() {
         execute_command(cmd);
         
         // CLEANUP
-        // Free data before the next loop
-        free_command(&cmd);
+        // If it is NOT a background command, we clean it up immediately.
+        // If it IS a background command, we leave the memory alive so 
+        // the executor can track it in the Job List.
+        if (!cmd.background) {
+            free_command(&cmd);
+        }
     }
+
     return 0;
 }
