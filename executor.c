@@ -7,6 +7,33 @@
 #include <signal.h>
 #include "mysh.h"
 
+
+Job job_table[MAX_JOBS];
+int job_count = 0;
+static int next_job_id = 1;
+
+void add_job(pid_t pid, const char *cmd_str) {
+    if (job_count >= MAX_JOBS) return;
+    job_table[job_count].pid = pid;
+    job_table[job_count].job_id = next_job_id++;
+    strncpy(job_table[job_count].cmd_str, cmd_str, 255);
+    job_table[job_count].cmd_str[255] = '\0';
+    job_count++;
+}
+
+int remove_job(pid_t pid) {
+    for (int i = 0; i < job_count; i++) {
+        if (job_table[i].pid == pid) {
+            int jid = job_table[i].job_id;
+            for (int j = i; j < job_count - 1; j++)
+                job_table[j] = job_table[j + 1];
+            job_count--;
+            return jid;
+        }
+    }
+    return -1;
+}
+
 // SIGCHILD handler for background jobs
 void sigchld_handler(int sig)
 {
