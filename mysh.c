@@ -25,13 +25,10 @@ int main() {
         // Execute
         execute_command(cmd);
         
-        // CLEANUP
-        // If it is NOT a background command, we clean it up immediately.
-        // If it IS a background command, we leave the memory alive so 
-        // the executor can track it in the Job List.
-        if (!cmd.background) {
-            free_command(&cmd);
-        }
+        // CLEANUP 
+        // Free the memory. The child process has its own clone 
+        // from fork(), and executor.c doesn't store pointers globally.
+        free_command(&cmd);
     }
 
     return 0;
