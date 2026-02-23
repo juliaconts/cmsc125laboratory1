@@ -62,14 +62,17 @@ A simple Unix Shell implementation using POSIX API where it supports command exe
     - Displays:
     `[Process 12345 killed by signal 1]`
 
+8. Command History
+    - The shell keeps track of successfully completed background jobs using a history table.
+    - Type in `history` as it will display the output: `[#] commandstr (PID #####)`
+
 ## Known Limitations/Bugs
 1. No support for:
     - Pipes (|)
     - Command chaining (&&, ||)
     - Job control commands (jobs, fg, bg)
-2. No command history.
-3. No advanced signal group handling.
-4. Output formatting may overlap with prompt during background completion.
+2. No advanced signal group handling.
+3. Output formatting may overlap with prompt during background completion.
 
 ## Design Decisions & Architecture
 
@@ -136,7 +139,3 @@ A simple Unix Shell implementation using POSIX API where it supports command exe
   - Append Output
 
     <img width="584" height="351" alt="image" src="https://github.com/user-attachments/assets/9be89d7b-39ed-4c3e-afee-b77c5a563fdc" />
-
-  
-      
-   
