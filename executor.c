@@ -7,13 +7,17 @@
 #include <signal.h>
 #include "mysh.h"
 
-
 Job job_table[MAX_JOBS];
 int job_count = 0;
 static int next_job_id = 1;
 
-void add_job(pid_t pid, const char *cmd_str) {
-    if (job_count >= MAX_JOBS) return;
+HistoryEntry history_table[MAX_HISTORY];
+int history_count = 0;
+
+void add_job(pid_t pid, const char *cmd_str)
+{
+    if (job_count >= MAX_JOBS)
+        return;
     job_table[job_count].pid = pid;
     job_table[job_count].job_id = next_job_id++;
     strncpy(job_table[job_count].cmd_str, cmd_str, 255);
@@ -21,10 +25,29 @@ void add_job(pid_t pid, const char *cmd_str) {
     job_count++;
 }
 
-int remove_job(pid_t pid) {
-    for (int i = 0; i < job_count; i++) {
-        if (job_table[i].pid == pid) {
+void add_history(int job_id, pid_t pid, const char *cmd_str)
+{
+    if (history_count >= MAX_HISTORY)
+        return;
+
+    history_table[history_count].job_id = job_id;
+    history_table[history_count].pid = pid;
+
+    strncpy(history_table[history_count].cmd_str, cmd_str, 255);
+    history_table[history_count].cmd_str[255] = '\0';
+
+    history_count++;
+}
+int remove_job(pid_t pid, char *cmd_out)
+{
+    for (int i = 0; i < job_count; i++)
+    {
+        if (job_table[i].pid == pid)
+        {
             int jid = job_table[i].job_id;
+
+            strcpy(cmd_out, job_table[i].cmd_str);
+
             for (int j = i; j < job_count - 1; j++)
                 job_table[j] = job_table[j + 1];
             job_count--;
@@ -44,8 +67,15 @@ void sigchld_handler(int sig)
 
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
     {
-        int jid = remove_job(pid);
-        if (jid < 0) continue; // wasn't a tracked background job
+        char cmd_str[256];
+        int jid = remove_job(pid, cmd_str);
+        if (jid < 0)
+            continue; // wasn't a tracked background job
+
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+        {
+            add_history(jid, pid, cmd_str);
+        }
 
         char buf[128];
         int n;
@@ -53,7 +83,7 @@ void sigchld_handler(int sig)
             n = snprintf(buf, sizeof(buf), "\n[%d] Done (PID %d)\n", jid, pid);
         else
             n = snprintf(buf, sizeof(buf), "\n[%d] Terminated (PID %d)\n", jid, pid);
-        
+
         write(STDOUT_FILENO, buf, n);
     }
 }
@@ -81,6 +111,18 @@ void execute_command(Command cmd)
     {
         if (cmd.args[1])
             chdir(cmd.args[1]);
+        return;
+    }
+
+    if (strcmp(cmd.command, "history") == 0)
+    {
+        for (int i = 0; i < history_count; i++)
+        {
+            printf("[%d] %s (PID %d)\n",
+                   history_table[i].job_id,
+                   history_table[i].cmd_str,
+                   history_table[i].pid);
+        }
         return;
     }
 
@@ -160,18 +202,21 @@ void execute_command(Command cmd)
                 fflush(stdout);
             }
         }
-        else {
+        else
+        {
             char cmd_str[256] = "";
-            for (int i = 0; cmd.args[i] != NULL; i++) {
+            for (int i = 0; cmd.args[i] != NULL; i++)
+            {
                 strncat(cmd_str, cmd.args[i], sizeof(cmd_str) - strlen(cmd_str) - 1);
                 if (cmd.args[i + 1] != NULL)
                     strncat(cmd_str, " ", sizeof(cmd_str) - strlen(cmd_str) - 1);
             }
-            add_job(pid, cmd_str);  // <-- saves job BEFORE free_command is called
-            printf("[%d] Started background job: %s (PID: %d)\n", job_table[job_count-1].job_id, cmd_str, pid);
+            add_job(pid, cmd_str); // <-- saves job BEFORE free_command is called
+            printf("[%d] Started background job: %s (PID: %d)\n", job_table[job_count - 1].job_id, cmd_str, pid);
         }
     }
-    else {
+    else
+    {
         // fork failure handling
         perror("fork failed");
     }
